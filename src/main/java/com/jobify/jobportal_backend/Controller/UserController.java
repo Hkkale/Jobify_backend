@@ -81,6 +81,22 @@ public class UserController {
 
     }
 
+    @PostMapping("/changePass")
+    public ResponseEntity<ResponseDto> changePassword (@RequestBody @Valid LoginDto loginDto)  throws JobPortalException {
+
+
+
+
+        return new ResponseEntity<>(userService.changePassword(loginDto),HttpStatus.OK);
+
+
+
+
+
+
+
+    }
+
 
     @GetMapping("/verifyOtp/{email}/{otp}")
     public ResponseEntity<ResponseDto> verifyOtp(@PathVariable @Email(message = "{user.email.invalid}") String email, @PathVariable @Pattern(regexp = "^[0-9]{6}$",message = "{otp.invalid}")  String otp) throws JobPortalException {
