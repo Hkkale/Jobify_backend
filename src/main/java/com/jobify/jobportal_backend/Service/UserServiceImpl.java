@@ -1,11 +1,13 @@
 package com.jobify.jobportal_backend.Service;
 
 import com.jobify.jobportal_backend.DTOs.LoginDto;
+import com.jobify.jobportal_backend.DTOs.NotificationDto;
 import com.jobify.jobportal_backend.DTOs.ResponseDto;
 import com.jobify.jobportal_backend.DTOs.UserDto;
 import com.jobify.jobportal_backend.Entity.OTP;
 import com.jobify.jobportal_backend.Entity.User;
 import com.jobify.jobportal_backend.Exception.JobPortalException;
+import com.jobify.jobportal_backend.Repository.NotificationRepository;
 import com.jobify.jobportal_backend.Repository.OTPRepository;
 import com.jobify.jobportal_backend.Repository.UserRepository;
 import com.jobify.jobportal_backend.Utility.Data;
@@ -36,15 +38,19 @@ public class UserServiceImpl implements UserService {
 
     private  ProfileService profileService;
 
+    private NotificationService notificationService;
+
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, Utilities utilities, PasswordEncoder passwordEncoder, JavaMailSender javaMailSender, OTPRepository otpRepository, ProfileService profileService) {
+    public UserServiceImpl(UserRepository userRepository, Utilities utilities, PasswordEncoder passwordEncoder, JavaMailSender javaMailSender, OTPRepository otpRepository, ProfileService profileService, NotificationRepository notificationRepository, NotificationService notificationService) {
         this.userRepository = userRepository;
         this.utilities = utilities;
         this.passwordEncoder = passwordEncoder;
         this.javaMailSender = javaMailSender;
         this.otpRepository = otpRepository;
         this.profileService = profileService;
+        this.notificationService = notificationService;
+
     }
 
 
@@ -57,7 +63,7 @@ public class UserServiceImpl implements UserService {
         if (optional.isPresent()) throw new JobPortalException("USER_FOUND");
 
 
-        userDto.setProfileId(profileService.createProfile(userDto.getEmail()));
+        userDto.setProfileId(profileService.createProfile(userDto.getEmail(),userDto.getName(),userDto.getAccountType()));
 
         userDto.setId(utilities.getNextSequence("users"));
         userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
@@ -75,6 +81,16 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword()))
             throw new JobPortalException("INVALID_CREDENTIALS");
         return user.toDto();
+    }
+
+    @Override
+    public UserDto getUserByEmail(String email) throws JobPortalException {
+
+
+        return  userRepository.findByEmail(email).orElseThrow(() -> new JobPortalException("USER_NOT_FOUND")).toDto();
+
+
+
     }
 
     @Override
@@ -118,11 +134,18 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(loginDto.getPassword()));
         userRepository.save(user);
 
+        NotificationDto notf =new NotificationDto();
+        notf.setUserId(user.getId());
+        notf.setMessage("Password Reset Successfully");
+        notf.setAction("Password Reset");
+
+        notificationService.sendNotification(notf);
+
         return new ResponseDto("Password changed successfully.");
     }
 
 
-//    @Scheduled(fixedRate = 60000)
+   @Scheduled(fixedRate = 60000)
     public void removeExpiredOTPs(){
         LocalDateTime expiry=LocalDateTime.now().minusMinutes(5);
         List<OTP> expiredOtps=otpRepository.findByCreationTimeBefore(expiry);

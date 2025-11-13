@@ -12,8 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:5173")
 @Validated
 @RequestMapping("/profiles")
 public class ProfileController {
@@ -43,6 +45,22 @@ public class ProfileController {
 
     }
 
+    @GetMapping("/get")
+    public ResponseEntity<List<ProfileDto>> getAllProfiles( ) throws JobPortalException {
+
+
+
+
+        return new ResponseEntity<>(profileService.getAllProfiles(), HttpStatus.OK);
+
+
+
+
+
+
+
+    }
+
     @PutMapping("/update")
     public ResponseEntity<ProfileDto> updateProfile(@RequestBody  ProfileDto profileDto ) throws JobPortalException {
 
@@ -58,6 +76,12 @@ public class ProfileController {
 
 
     }
+
+
+    
+
+
+
 
 
 

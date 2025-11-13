@@ -10,6 +10,9 @@ import com.jobify.jobportal_backend.Service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
+
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,9 +20,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin
+
+@CrossOrigin(origins = "http://localhost:5173")
 @Validated
 @RequestMapping("/users")
+
 
 public class UserController {
 
@@ -37,6 +42,31 @@ public class UserController {
         userDto= userService.registerUser(userDto);
 
         return new ResponseEntity<>(userDto, HttpStatus.CREATED);
+
+
+
+
+
+
+
+    }
+
+
+
+    @PostMapping("/registerALL")
+    public ResponseEntity<List<UserDto>> registerUserALL( @RequestBody  List<UserDto> userDtos) throws JobPortalException {
+
+
+        for(UserDto userDto:userDtos){
+
+            UserController.this.registerUser(userDto);
+
+        }
+
+
+        
+
+        return new ResponseEntity<>(userDtos, HttpStatus.CREATED);
 
 
 

@@ -1,5 +1,6 @@
 package com.jobify.jobportal_backend.DTOs;
 
+import com.jobify.jobportal_backend.Entity.Applicant;
 import com.jobify.jobportal_backend.Entity.Job;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +20,7 @@ public class JobDto {
     private Long id;
     private String jobTitle;
     private String company;
-    private List<Applicant> applicants;
+    private List<ApplicantDto> applicants;
     private String about;
     private String experience;
     private String jobType;
@@ -28,10 +29,11 @@ public class JobDto {
     private LocalDateTime postTime;
     private String description;
     private List<String> skillsRequired;
-    private JobStatus jobstatus;
+    private JobStatus jobStatus;
+    private Long postedBy;
 
     public Job toEntity(){
-        return new Job(this.id,this.jobTitle,this.company,this.applicants,
-                this.about,this.experience,this.jobType,this.location,this.packageOffered,this.postTime,this.description,this.skillsRequired,this.jobstatus);
+        return new Job(this.id,this.jobTitle,this.company,this.applicants!=null?this.applicants.stream().map((x)->x.toEntity()).toList():null,
+                this.about,this.experience,this.jobType,this.location,this.packageOffered,this.postTime,this.description,this.skillsRequired,this.jobStatus,this.postedBy);
     }
 }
