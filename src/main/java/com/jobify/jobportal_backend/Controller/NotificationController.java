@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
-@CrossOrigin("http://localhost:5173")
+
 @Validated
 @RequestMapping("/notification")
 public class NotificationController {
